@@ -1,0 +1,22 @@
+name: on-push
+on: [push]
+jobs:
+  test:
+    name: Build & publish to GHCR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install wget
+        run: sudo apt-get install wget
+      - name: Retrieve dockerfile from Antlr repository
+        run: wget https://raw.githubusercontent.com/antlr/antlr4/master/docker/Dockerfile
+      - name: Add label to image # to make it linked to this GH repository
+        run: echo 'LABEL org.opencontainers.image.source="https://github.com/remieven/antlr-docker"' >> Dockerfile
+      - name: Login to GitHub Container registry
+        run: |
+          echo $CR_PAT | docker login ghcr.io -u RemiEven --password-stdin
+        env:
+          CR_PAT: ${{ secrets.CR_PAT }}
+      - name: Build docker image
+        run: docker build -f Dockerfile -t ghcr.io/remieven/antlr4:latest .
+      - name: Push image to GHCR
+        run: docker push ghcr.io/remieven/antlr4:latest
