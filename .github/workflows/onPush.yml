@@ -1,5 +1,5 @@
 name: on-push
-on: [push]
+on: [push, workflow_dispatch]
 jobs:
   test:
     name: Build & publish to GHCR
